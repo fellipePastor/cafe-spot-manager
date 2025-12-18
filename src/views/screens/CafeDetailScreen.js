@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { toggleLike } from '../../controllers/cafeController';
 
-const CafeDetailScreen = ({ route }) => {
-  const cafe = route?.params?.cafe;
+const CafeDetailScreen = ({ route, user }) => {
+  const initialCafe = route?.params?.cafe;
+  const [cafe, setCafe] = useState(initialCafe);
 
   if (!cafe) {
     return (
@@ -46,6 +48,20 @@ const CafeDetailScreen = ({ route }) => {
           <Text style={styles.text}>Longitude: {cafe.location.longitude}</Text>
           <Text style={styles.text}>Ticket medio: {cafe.averageTicket}</Text>
           <Text style={styles.status}>{cafe.active ? 'Ativa' : 'Inativa'}</Text>
+          <Text style={styles.text}>{cafe.likedBy?.length || 0} likes</Text>
+          {user ? (
+            <TouchableOpacity
+              style={[styles.likeButton, cafe.likedBy?.includes(user.id) ? styles.likeButtonActive : null]}
+              onPress={async () => {
+                const updated = await toggleLike(cafe.id, user.id);
+                setCafe(updated);
+              }}
+            >
+              <Text style={[styles.likeText, cafe.likedBy?.includes(user.id) ? styles.likeTextActive : null]}>
+                {cafe.likedBy?.includes(user.id) ? 'Remover like' : 'Curtir'}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -76,6 +92,21 @@ const styles = StyleSheet.create({
     color: '#38bdf8',
     fontWeight: '800',
   },
+  likeButton: {
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    backgroundColor: '#1f2937',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  likeButtonActive: {
+    backgroundColor: '#c084fc',
+    borderColor: '#c084fc',
+  },
+  likeText: { color: '#e2e8f0', fontWeight: '700' },
+  likeTextActive: { color: '#0b1220' },
   error: { color: '#fb7185', fontWeight: '700' },
 });
 

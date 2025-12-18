@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import PrimaryButton from '../components/PrimaryButton';
-import { deleteCafe, listCafes, toggleCafeStatus } from '../../controllers/cafeController';
+import { deleteCafe, listCafes, toggleCafeStatus, toggleLike } from '../../controllers/cafeController';
 import { UserTypes } from '../../models/User';
 
 const CafeListScreen = ({ navigation, onLogout, user, route }) => {
@@ -71,6 +71,13 @@ const CafeListScreen = ({ navigation, onLogout, user, route }) => {
     setMessage(updated.active ? 'Cadastro reativado' : 'Cadastro inativado');
   };
 
+  const handleLike = async (id) => {
+    if (!user?.id) return;
+    const updated = await toggleLike(id, user.id);
+    setCafes((prev) => prev.map((c) => (c.id === id ? { ...c, likedBy: updated.likedBy } : c)));
+    setMessage(updated.likedBy?.includes(user.id) ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
+  };
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={[styles.card, !item.active && styles.cardInactive]}
@@ -101,6 +108,26 @@ const CafeListScreen = ({ navigation, onLogout, user, route }) => {
         <Text style={styles.metaSmall}>
           CNPJ: {item.cnpj} | {item.location.latitude},{item.location.longitude}
         </Text>
+        <View style={styles.likeRow}>
+          <Text style={styles.likesCount}>{item.likedBy?.length || 0} likes</Text>
+          <TouchableOpacity
+            style={[
+              styles.likeButton,
+              item.likedBy?.includes(user?.id) ? styles.likeButtonActive : null,
+            ]}
+            onPress={() => handleLike(item.id)}
+            disabled={!user}
+          >
+            <Text
+              style={[
+                styles.likeText,
+                item.likedBy?.includes(user?.id) ? styles.likeTextActive : null,
+              ]}
+            >
+              {item.likedBy?.includes(user?.id) ? 'Remover like' : 'Curtir'}
+            </Text>
+          </TouchableOpacity>
+        </View>
         {isAdmin ? (
           <View style={styles.actionsRow}>
             <TouchableOpacity
@@ -227,6 +254,27 @@ const styles = StyleSheet.create({
   description: { color: '#cbd5e1', marginTop: 4 },
   meta: { color: '#94a3b8', marginTop: 6, fontWeight: '600' },
   metaSmall: { color: '#64748b', marginTop: 4, fontSize: 12 },
+  likeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  likesCount: { color: '#cbd5e1', fontWeight: '700' },
+  likeButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#1f2937',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  likeButtonActive: {
+    backgroundColor: '#c084fc',
+    borderColor: '#c084fc',
+  },
+  likeText: { color: '#e2e8f0', fontWeight: '700' },
+  likeTextActive: { color: '#0b1220' },
   actionsRow: {
     flexDirection: 'row',
     gap: 8,

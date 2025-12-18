@@ -3,6 +3,10 @@ import { getCafes, saveCafes } from '../storage/storage';
 import { isValidCnpj, requiredFieldsFilled } from '../utils/validators';
 
 export const listCafes = async () => getCafes();
+export const getCafeById = async (id) => {
+  const cafes = await getCafes();
+  return cafes.find((c) => c.id === id);
+};
 
 export const saveCafe = async (payload) => {
   if (
@@ -54,6 +58,19 @@ export const toggleCafeStatus = async (id) => {
   const updated = cafes.map((cafe) =>
     cafe.id === id ? { ...cafe, active: !cafe.active } : cafe
   );
+  await saveCafes(updated);
+  return updated.find((c) => c.id === id);
+};
+
+export const toggleLike = async (id, userId) => {
+  const cafes = await getCafes();
+  const updated = cafes.map((cafe) => {
+    if (cafe.id !== id) return cafe;
+    const likedBy = cafe.likedBy || [];
+    const hasLiked = likedBy.includes(userId);
+    const newLikedBy = hasLiked ? likedBy.filter((uid) => uid !== userId) : [...likedBy, userId];
+    return { ...cafe, likedBy: newLikedBy };
+  });
   await saveCafes(updated);
   return updated.find((c) => c.id === id);
 };

@@ -18,4 +18,5 @@ export const createCafe = (payload) => ({
   averageTicket: String(payload?.averageTicket || '').trim(),
   imageUrl: payload?.imageUrl || '',
   active: payload?.active ?? true,
+  likedBy: payload?.likedBy || [],
 });
