@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -39,6 +40,17 @@ const CafeListScreen = ({ navigation, onLogout, user, route }) => {
   );
 
   const confirmDelete = (id) => {
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Deseja remover este cadastro de vez?');
+      if (confirmed) {
+        deleteCafe(id).then(() => {
+          setMessage('Cadastro removido');
+          loadData();
+        });
+      }
+      return;
+    }
+
     Alert.alert('Excluir', 'Deseja remover este cadastro de vez?', [
       { text: 'Cancelar', style: 'cancel' },
       {

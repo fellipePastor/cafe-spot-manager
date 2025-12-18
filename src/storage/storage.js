@@ -54,22 +54,7 @@ export const seedDefaults = async () => {
         cnpj: '12.345.678/0001-90',
         averageTicket: 'R$ 28',
         imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200',
-      }),
-      createCafe({
-        name: 'Brisa Cafe Lab',
-        description: 'Cold brew, musica indie e mesas colaborativas.',
-        street: 'Av. Paulista',
-        number: '1400',
-        zip: '01310-100',
-        neighborhood: 'Bela Vista',
-        city: 'Sao Paulo',
-        state: 'SP',
-        latitude: '-23.5614',
-        longitude: '-46.6560',
-        cnpj: '98.765.432/0001-01',
-        averageTicket: 'R$ 32',
-        imageUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200',
-      }),
+      })
     ];
     await saveCafes(defaultCafes);
   }
