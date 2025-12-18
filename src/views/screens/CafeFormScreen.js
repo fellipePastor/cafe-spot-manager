@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PrimaryButton from '../components/PrimaryButton';
@@ -6,6 +6,7 @@ import FormField from '../components/FormField';
 import { maskCnpj } from '../../utils/validators';
 import { saveCafe } from '../../controllers/cafeController';
 import { UserTypes } from '../../models/User';
+import { fetchAddressByCep } from '../../services/cepService';
 
 const emptyForm = {
   id: null,
@@ -30,6 +31,7 @@ const CafeFormScreen = ({ navigation, route, user }) => {
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const lastCepRef = useRef('');
 
   useEffect(() => {
     if (user && user.type !== UserTypes.ADMIN) {
@@ -61,6 +63,36 @@ const CafeFormScreen = ({ navigation, route, user }) => {
   }, [existingCafe, user]);
 
   const updateField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+
+  const handleCepLookup = async (value) => {
+    const cepValue = value ?? form.zip;
+    const digits = String(cepValue || '').replace(/\D/g, '');
+    if (digits.length !== 8 || digits === lastCepRef.current) {
+      return;
+    }
+    lastCepRef.current = digits;
+    setError('');
+    try {
+      const address = await fetchAddressByCep(cepValue);
+      setForm((prev) => ({
+        ...prev,
+        street: address.street || prev.street,
+        neighborhood: address.neighborhood || prev.neighborhood,
+        city: address.city || prev.city,
+        state: address.state || prev.state,
+        zip: address.zip || prev.zip,
+      }));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  useEffect(() => {
+    const digits = String(form.zip || '').replace(/\D/g, '');
+    if (digits.length === 8 && digits !== lastCepRef.current) {
+      handleCepLookup(form.zip);
+    }
+  }, [form.zip]);
 
   const handleSave = async () => {
     setError('');
@@ -99,28 +131,29 @@ const CafeFormScreen = ({ navigation, route, user }) => {
         />
 
         <Text style={styles.sectionTitle}>Endereco</Text>
+        
+        <FormField
+          label="CEP"
+          placeholder="00000-000"
+          value={form.zip}
+          onChangeText={(text) => updateField('zip', text)}
+          onEndEditing={(e) => handleCepLookup(e.nativeEvent.text)}
+          onSubmitEditing={(e) => handleCepLookup(e.nativeEvent.text)}
+          keyboardType="numeric"
+          maxLength={9}
+        />
         <FormField
           label="Rua"
           placeholder="Rua / Avenida"
           value={form.street}
           onChangeText={(text) => updateField('street', text)}
         />
-        <View style={styles.row}>
-          <FormField
-            label="Numero"
-            placeholder="120"
-            value={form.number}
-            onChangeText={(text) => updateField('number', text)}
-            style={styles.half}
-          />
-          <FormField
-            label="CEP"
-            placeholder="00000-000"
-            value={form.zip}
-            onChangeText={(text) => updateField('zip', text)}
-            style={styles.half}
-          />
-        </View>
+        <FormField
+          label="Numero"
+          placeholder="120"
+          value={form.number}
+          onChangeText={(text) => updateField('number', text)}
+        />
         <FormField
           label="Bairro"
           placeholder="Bairro"
