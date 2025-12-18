@@ -58,7 +58,7 @@ const CafeFormScreen = ({ navigation, route, user }) => {
         active: existingCafe.active,
       });
     }
-  }, [existingCafe]);
+  }, [existingCafe, user]);
 
   const updateField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 

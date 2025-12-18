@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PrimaryButton from '../components/PrimaryButton';
 import FormField from '../components/FormField';
-import { UserTypes } from '../../models/User';
 
 const SignupScreen = ({ navigation, onSignup }) => {
   const [form, setForm] = useState({
     name: '',
     email: '',
     password: '',
-    type: UserTypes.CLIENT,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,7 +31,6 @@ const SignupScreen = ({ navigation, onSignup }) => {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Crie sua conta</Text>
-        <Text style={styles.subtitle}>Controle acessos de clientes e admins.</Text>
 
         <FormField
           label="Nome completo"
@@ -57,29 +54,6 @@ const SignupScreen = ({ navigation, onSignup }) => {
           value={form.password}
           onChangeText={(text) => updateField('password', text)}
         />
-
-        <Text style={styles.label}>Tipo de usuario</Text>
-        <View style={styles.typeRow}>
-          {[UserTypes.CLIENT, UserTypes.ADMIN].map((type) => (
-            <TouchableOpacity
-              key={type}
-              style={[
-                styles.typeButton,
-                form.type === type ? styles.typeButtonActive : null,
-              ]}
-              onPress={() => updateField('type', type)}
-            >
-              <Text
-                style={[
-                  styles.typeText,
-                  form.type === type ? styles.typeTextActive : null,
-                ]}
-              >
-                {type}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -112,32 +86,6 @@ const styles = StyleSheet.create({
     color: '#cbd5e1',
     marginBottom: 24,
   },
-  label: {
-    color: '#e2e8f0',
-    fontWeight: '600',
-    marginBottom: 8,
-    marginTop: 8,
-  },
-  typeRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 20,
-  },
-  typeButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#1f2937',
-    backgroundColor: '#0f172a',
-    alignItems: 'center',
-  },
-  typeButtonActive: {
-    backgroundColor: '#a855f7',
-    borderColor: '#c084fc',
-  },
-  typeText: { color: '#e2e8f0', fontWeight: '700' },
-  typeTextActive: { color: '#0b1220' },
   error: {
     color: '#fb7185',
     marginBottom: 10,

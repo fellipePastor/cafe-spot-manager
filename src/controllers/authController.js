@@ -1,9 +1,9 @@
-import { createUser } from '../models/User';
+import { createUser, UserTypes } from '../models/User';
 import { clearSession, getUsers, saveUsers, setSession } from '../storage/storage';
 import { isValidEmail, requiredFieldsFilled } from '../utils/validators';
 
 export const registerUser = async (payload) => {
-  if (!requiredFieldsFilled([payload.name, payload.email, payload.password, payload.type])) {
+  if (!requiredFieldsFilled([payload.name, payload.email, payload.password])) {
     throw new Error('Preencha todos os campos.');
   }
 
@@ -21,7 +21,7 @@ export const registerUser = async (payload) => {
     throw new Error('Ja existe um usuario com este e-mail.');
   }
 
-  const newUser = createUser(payload);
+  const newUser = createUser({ ...payload, type: UserTypes.CLIENT });
   await saveUsers([...users, newUser]);
   await setSession(newUser);
   return newUser;
