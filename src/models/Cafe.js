@@ -1,5 +1,5 @@
 export const createCafe = (payload) => ({
-  id: payload?.id || Date.now().toString(),
+  id: payload?.id || Date.now().toString() + Math.random().toString(36).substring(2, 15),
   name: String(payload?.name || '').trim(),
   description: String(payload?.description || '').trim(),
   address: {
